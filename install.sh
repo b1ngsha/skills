@@ -23,11 +23,23 @@ TARGETS=(
   "$HOME/.agents/skills"
 )
 
-# Discover skills: any top-level directory containing SKILL.md.
+# Discover skills via three patterns:
+#   1. <repo>/<skill>/SKILL.md            -- skills authored in this repo
+#   2. <repo>/vendor/<repo>/SKILL.md      -- vendored repo IS a single skill (e.g. kami)
+#   3. <repo>/vendor/<repo>/skills/<skill>/SKILL.md  -- vendored repo bundles many skills (e.g. Waza)
 SKILLS=()
-while IFS= read -r dir; do
+seen=""
+while IFS= read -r file; do
+  case "$file" in *"/.git/"*) continue ;; esac
+  dir="$(dirname "$file")"
+  case ":$seen:" in *":$dir:"*) continue ;; esac
+  seen="$seen:$dir"
   SKILLS+=("$dir")
-done < <(find "$REPO_DIR" -maxdepth 2 -name SKILL.md -not -path "*/.git/*" -exec dirname {} \;)
+done < <(
+  find "$REPO_DIR" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null
+  find "$REPO_DIR/vendor" -mindepth 2 -maxdepth 2 -name SKILL.md 2>/dev/null
+  find "$REPO_DIR/vendor" -mindepth 4 -maxdepth 4 -name SKILL.md 2>/dev/null
+)
 
 [ ${#SKILLS[@]} -gt 0 ] || { echo "No SKILL.md found under $REPO_DIR" >&2; exit 1; }
 

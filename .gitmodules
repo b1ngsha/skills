@@ -1,0 +1,6 @@
+[submodule "vendor/Waza"]
+	path = vendor/Waza
+	url = https://github.com/tw93/Waza.git
+[submodule "vendor/kami"]
+	path = vendor/kami
+	url = https://github.com/tw93/kami.git

@@ -15,20 +15,20 @@
 | [`architecture-design-review`](architecture-design-review/) | 多仓架构审查，带严格上下文预算控制 |
 | [`security-review`](security-review/) | 威胁模型驱动的全栈安全审查（后端 / 前端 / 移动端 / 基础设施） |
 
-### Waza · 工程习惯（来自 [tw93/Waza](https://github.com/tw93/Waza)）
+### Waza · 工程习惯（vendor 子模块：[tw93/Waza](https://github.com/tw93/Waza)）
 
 把"动手前先想"、"交付前自检"、"出错先定位根因"这类工程习惯包装成可调用的 skill。每个 skill 一个明确触发点、一件事做透，不互相串联——切换由用户手动决定。
 
 | Skill | 触发场景 | 做什么 |
 |---|---|---|
-| [`think`](think/) | 动手做新功能 / 架构决策 / 价值判断之前 | 挑战需求、压测设计、把粗想法落成可执行方案 |
-| [`design`](design/) | 做 UI / 组件 / 页面 / 视觉界面 | 产出有美学主张的前端实现，不走通用默认风 |
-| [`check`](check/) | 实现完成、合并前 | review diff、自动修小问题、必要时分派 security 与 architecture 审查；也用于 issue / PR triage |
-| [`hunt`](hunt/) | 报错 / 崩溃 / 测试失败 / 行为异常 | 系统化排查，先定位根因再动手修 |
-| [`read`](read/) | 任何 URL 或 PDF | 取回干净 Markdown，针对 GitHub / 微信 / 飞书 / X 等做平台路由 |
-| [`learn`](learn/) | 深度研究一个陌生领域 | 六阶段研究：收集 → 消化 → 提纲 → 填充 → 精修 → 自审 |
-| [`write`](write/) | 写稿 / 改稿 / 润色 | 去 AI 味，把行文调成自然的中英文表达 |
-| [`health`](health/) | Claude 不听话 / hook 失灵 / MCP 异常 | 审计 CLAUDE.md、rules、skills、hooks、MCP，按严重度报告问题（仅 Claude Code） |
+| [`think`](vendor/Waza/skills/think/) | 动手做新功能 / 架构决策 / 价值判断之前 | 挑战需求、压测设计、把粗想法落成可执行方案 |
+| [`design`](vendor/Waza/skills/design/) | 做 UI / 组件 / 页面 / 视觉界面 | 产出有美学主张的前端实现，不走通用默认风 |
+| [`check`](vendor/Waza/skills/check/) | 实现完成、合并前 | review diff、自动修小问题、必要时分派 security 与 architecture 审查；也用于 issue / PR triage |
+| [`hunt`](vendor/Waza/skills/hunt/) | 报错 / 崩溃 / 测试失败 / 行为异常 | 系统化排查，先定位根因再动手修 |
+| [`read`](vendor/Waza/skills/read/) | 任何 URL 或 PDF | 取回干净 Markdown，针对 GitHub / 微信 / 飞书 / X 等做平台路由 |
+| [`learn`](vendor/Waza/skills/learn/) | 深度研究一个陌生领域 | 六阶段研究：收集 → 消化 → 提纲 → 填充 → 精修 → 自审 |
+| [`write`](vendor/Waza/skills/write/) | 写稿 / 改稿 / 润色 | 去 AI 味，把行文调成自然的中英文表达 |
+| [`health`](vendor/Waza/skills/health/) | Claude 不听话 / hook 失灵 / MCP 异常 | 审计 CLAUDE.md、rules、skills、hooks、MCP，按严重度报告问题（仅 Claude Code） |
 
 **常见手动串联**
 
@@ -36,24 +36,30 @@
 - `/read` 取回多篇 URL → `/learn` 综合成文 → `/write` 去 AI 味
 - `/hunt` 定位根因 → 修复 → `/check` 确认无副作用
 
-### Kami · 文档排版（来自 [tw93/kami](https://github.com/tw93/kami)）
+### Kami · 文档排版（vendor 子模块：[tw93/kami](https://github.com/tw93/kami)）
 
 把简历、一页纸、白皮书、信件、作品集、幻灯片、研报、更新日志统一到一套"暖米色 + 墨蓝"的衬线排版语言上。中文 TsangerJinKai02、英文 Charter、日文 YuMincho（best-effort）。
 
 | Skill | 触发短语 |
 |---|---|
-| [`kami`](kami/) | "做 PDF / 排版 / 一页纸 / 白皮书 / 简历 / 作品集 / PPT"，"build me a resume / make a one-pager / design a slide deck" |
+| [`kami`](vendor/kami/) | "做 PDF / 排版 / 一页纸 / 白皮书 / 简历 / 作品集 / PPT"，"build me a resume / make a one-pager / design a slide deck" |
 
-> 字体没有打包进仓库（中文字 36MB），首次构建中文文档时 `kami/SKILL.md` 描述的脚本会从 jsDelivr CDN 自动拉取到 `assets/fonts/`。WeasyPrint、Python 等构建依赖请按 [tw93/kami](https://github.com/tw93/kami) 的说明自行安装。
+> 中文字体（TsangerJinKai02，约 36MB）在 [tw93/kami](https://github.com/tw93/kami) 仓库里跟随子模块直接 checkout；如果用浅克隆或精简 checkout 缺了字体，`vendor/kami/SKILL.md` 描述的脚本会从 jsDelivr CDN 自动补齐。WeasyPrint、Python 等构建依赖按上游 README 自行安装。
 
 ## 安装
 
-将每个 skill 软链到所有检测到的 Agent skills 目录。仓库更新即刻生效，无需复制同步。
+将每个 skill 软链到所有检测到的 Agent skills 目录。仓库更新即刻生效，无需复制同步。`vendor/` 下的 Waza、kami 用 git submodule 管理，克隆时记得加 `--recurse-submodules`。
 
 ```bash
-git clone https://github.com/<user>/my-skills.git ~/Documents/code/my-skills
+git clone --recurse-submodules https://github.com/<user>/my-skills.git ~/Documents/code/my-skills
 cd ~/Documents/code/my-skills
 ./install.sh
+```
+
+漏加 `--recurse-submodules` 时补一句：
+
+```bash
+git submodule update --init --recursive
 ```
 
 支持的目标目录：
@@ -79,11 +85,21 @@ cd ~/Documents/code/my-skills
 
 ## 更新
 
+本仓自身的 skill：
+
 ```bash
 git -C ~/Documents/code/my-skills pull
 ```
 
-软链直接指向源文件，`git pull` 就是完整的更新流程。只有新增 skill 目录时才需要重跑 `install.sh`。
+把 vendor 子模块（Waza、kami）拉到上游最新提交：
+
+```bash
+git -C ~/Documents/code/my-skills submodule update --remote --merge
+# 想固化到当前 commit：
+git -C ~/Documents/code/my-skills add vendor && git commit -m "bump vendor skills"
+```
+
+软链直接指向源文件，更新立即对所有 Agent 生效。只有新增 skill 目录时才需要重跑 `install.sh`。
 
 ## 使用
 
