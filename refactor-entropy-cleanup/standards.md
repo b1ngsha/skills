@@ -68,16 +68,16 @@ src/
 ├── app.ts or server.ts
 ├── bootstrap.ts        # app wiring, thin
 ├── config/ or env.ts
-├── <capability>/       # agent, rss, commands, channels, db
+├── <capability>/       # one folder per business capability
 │   ├── index.ts        # public API when useful
 │   └── *.ts
-└── <runtime>/          # narrow composition boundary when one variant choice wires multiple collaborators
+└── <subsystem>/        # narrow composition boundary when one variant choice wires multiple collaborators
 ```
 
 Rules:
-- Keep business concepts grouped by meaning, not provider name. If OpenAI and Gemini both implement RSS article evaluation with the same schema/prompt, one `rss-evaluator.ts` can export both factories.
-- Split provider-specific files when SDK contracts dominate the file, e.g. message mapping for `openai-agent-runner.ts` vs `gemini-agent-runner.ts`.
-- If provider selection configures multiple collaborators, move the branch to a narrow runtime/composition module and keep `bootstrap.ts` declarative.
+- Group by business capability, not by implementation variant (provider, vendor, runtime target, environment, ...). One concept module can export multiple per-variant factories when they share the same schema and contract.
+- Split per-variant files only when the variant's SDK or protocol contract dominates the file (large divergent message-mapping, lifecycle differences, incompatible types).
+- When variant selection configures multiple collaborators, hoist the branch into a narrow composition module that returns the already-wired collaborators, and keep `bootstrap.ts` declarative.
 - Do not introduce `controllers/`, `services/`, or `repositories/` until routing, business logic, and persistence are actually large enough to need those layers.
 
 ### Express/Fastify (medium): layered

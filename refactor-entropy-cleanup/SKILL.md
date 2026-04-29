@@ -14,7 +14,7 @@ Multi-round Agent edits typically inflate files (mixed responsibilities), scatte
 3. **Never** introduce a new layer/abstraction that the existing codebase does not already justify (no speculative DDD, no premature `core/domain/` split for a 20-file project).
 4. **Always** read full file content for every file in scope before proposing splits — names lie, content tells the truth.
 5. **Always** keep changes reversible: one logical move/split per commit-equivalent step.
-6. **Do not split by implementation variant alone.** If two implementations share the same business meaning (for example, two providers for the same evaluator), prefer one cohesive module with provider-specific factories unless SDK contracts or file size justify separation.
+6. **Organize by meaning (the WHAT), not by implementation variant (the HOW).** When two modules differ only along a single variant axis — provider, vendor, runtime target, environment, platform, storage backend, protocol version, SDK, schema version — but represent the same business concept, prefer one cohesive module that exports per-variant factories. Split per variant only when the variant's contract surface or divergence forces it.
 
 ## Workflow
 
@@ -65,20 +65,20 @@ Flag any file or group exhibiting:
 | **Type-vs-runtime mix** | Types, constants, and runtime logic crammed in one module |
 | **Duplicated logic** | Two near-identical implementations across files |
 | **Wrong granularity** | One file per one-line constant; or 12 components in one file |
-| **Variant leakage** | `bootstrap.ts` or route setup contains repeated `provider === 'x' ? ... : ...` wiring for multiple subsystems |
-| **Provider split drift** | `openai-foo.ts` and `gemini-foo.ts` duplicate schemas/prompts because the real concept is `foo` |
+| **Variant duplication** | Multiple sibling files (`<a>-foo.ts` / `<b>-foo.ts`, `foo_v1.py` / `foo_v2.py`) duplicate schemas, prompts, or logic because the real concept is `foo` and the variant axis is incidental |
+| **Conditional scatter** | The same `if (variant === 'x')` selection is repeated across bootstrap, services, workers, and commands |
 
 Produce a concrete list with file paths and offending excerpts. Do not propose fixes yet.
 
-### Provider / Variant Boundaries
+### Organizing by Meaning, Not by Variant
 
-When entropy comes from multiple providers, adapters, runtimes, or SDK variants:
+A **variant axis** is any single dimension along which a concept has multiple implementations: provider/vendor, runtime target, environment, platform, storage backend, protocol version, SDK, schema version, tenant. Apply these rules whenever entropy traces back to such an axis:
 
-- Keep the **business concept** as the organizing unit: `rss-evaluator.ts` can own both `createOpenAiRssEvaluator` and `createGeminiRssEvaluator` when both mean "evaluate RSS articles".
-- Split provider files only when the integration contract is large or materially different: chat runners that map provider-specific message formats may deserve separate `openai-agent-runner.ts` / `gemini-agent-runner.ts`.
-- Centralize provider selection in a narrow composition module when the same choice configures multiple collaborators. Example shape: `llm/runtime.ts` returns `{ agent, rssEvaluator, chatModel }`, while `bootstrap.ts` only consumes that runtime.
-- Avoid scattering provider conditionals across setup files. One provider switch is acceptable; repeated switches in the same entry point are a boundary smell.
-- Do not introduce a generic registry/plugin system until there are enough providers and runtime behavior to justify it.
+- **Name modules by the business concept**, not by the variant. One concept module can export multiple per-variant factories when they share the same shape, schema, or contract.
+- **Split per variant only when the variant's contract dominates the file** — e.g. divergent SDK lifecycles, large message-mapping, incompatible types. The split must be justified by size and divergence, not by the variant's existence.
+- **Hoist variant selection to a single narrow composition boundary.** When one choice configures multiple collaborators, expose them through one composition object (`runtime`, `clients`, `adapters`) and keep the rest of the code variant-blind.
+- **One conditional is acceptable; the same conditional repeated across entry points is a smell.** Move the branch up, not down.
+- **Do not introduce registries, plugin systems, or strategy frameworks speculatively.** Wait until variant count and runtime behavior justify the abstraction.
 
 ### 4. Pick target layout
 
@@ -90,11 +90,11 @@ Open [standards.md](standards.md) and select the layout that:
 
 If the user has an `AGENTS.md`, `CONTRIBUTING.md`, or similar, those override standards.md.
 
-For small Node/TypeScript backends, prefer evolving the current responsibility folders. A single narrow composition folder such as `src/llm/runtime.ts` is acceptable when it removes repeated provider wiring, but do not convert the whole project to layered architecture just to host it.
+A single narrow composition folder (e.g. `src/<subsystem>/runtime.ts`) is acceptable when it removes repeated variant-selection wiring, but do not convert the whole project to a new layered architecture just to host it.
 
 ### 5. Migration plan
 
-Produce a single plan document with three sections:
+Produce a single plan document with these sections:
 
 **a. File moves** — old path → new path, one per line.
 
@@ -110,7 +110,7 @@ src/utils.ts (412 LOC) splits into:
 
 **c. Import rewrites** — every importer of a moved/split symbol gets updated. Note that re-export barrels (`index.ts`, `__init__.py`, `mod.rs`) may absorb most rewrites.
 
-**d. Composition rewrites** — if variant selection is leaking, list where the branch moves and what simple runtime/factory object it returns. Keep this object narrow and named by the subsystem it composes.
+**d. Conditional hoists** — if a variant selection is scattered, list where the branch moves to and what narrow composition object it returns. Name the object by the subsystem it composes, never by the variant.
 
 ### 6. Confirm with user
 
@@ -149,8 +149,8 @@ If any step fails, fix or roll back. Do not declare done with red checks.
 - **Renaming public APIs.** Refactor is internal. Public exports, route paths, CLI flags, env vars stay identical.
 - **Mass-renaming style.** Don't switch `camelCase` ↔ `kebab-case` filenames unless the project lint rule already mandates it.
 - **Big-bang commits.** Split execution into reviewable chunks, even if delivered in one session.
-- **Provider-per-file reflex.** Don't create `openai-x.ts`, `gemini-x.ts`, and `anthropic-x.ts` if the shared concept, schema, and prompt are the same. That duplicates knowledge and creates naming drift.
-- **Hardcoded variant scatter.** Don't leave the same provider conditional in bootstrap, services, workers, and commands. Move selection to the smallest composition boundary that can return the already-wired collaborators.
+- **Variant-per-file reflex.** Don't create one file per implementation variant (`<a>-x.ts`, `<b>-x.ts`, ...) when the shared schema, contract, or prompt is the same. That duplicates knowledge and creates naming drift.
+- **Conditional scatter.** Don't repeat the same variant-selection conditional in bootstrap, services, workers, and commands. Hoist selection to the smallest composition boundary that returns already-wired collaborators.
 
 ## Output Template
 
@@ -176,8 +176,8 @@ When presenting the plan to the user, use:
 <file → [new files with symbol lists]>
 ### Import Rewrites
 <count + sample>
-### Composition Rewrites
-<provider/runtime branch moved from X to Y, returned object shape>
+### Conditional Hoists
+<variant branch moved from X to Y, returned composition-object shape>
 
 ## Verification Plan
 <commands to run after execution>
