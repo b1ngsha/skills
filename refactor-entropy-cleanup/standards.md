@@ -59,6 +59,27 @@ Rules:
 
 ## Node.js backend (Express / Fastify / NestJS)
 
+### Small TypeScript backend: flat by responsibility
+
+For small bots, webhook services, CLIs, and single-process backends, prefer existing responsibility folders over a full controller/service/repository stack:
+
+```
+src/
+├── app.ts or server.ts
+├── bootstrap.ts        # app wiring, thin
+├── config/ or env.ts
+├── <capability>/       # agent, rss, commands, channels, db
+│   ├── index.ts        # public API when useful
+│   └── *.ts
+└── <runtime>/          # narrow composition boundary when one variant choice wires multiple collaborators
+```
+
+Rules:
+- Keep business concepts grouped by meaning, not provider name. If OpenAI and Gemini both implement RSS article evaluation with the same schema/prompt, one `rss-evaluator.ts` can export both factories.
+- Split provider-specific files when SDK contracts dominate the file, e.g. message mapping for `openai-agent-runner.ts` vs `gemini-agent-runner.ts`.
+- If provider selection configures multiple collaborators, move the branch to a narrow runtime/composition module and keep `bootstrap.ts` declarative.
+- Do not introduce `controllers/`, `services/`, or `repositories/` until routing, business logic, and persistence are actually large enough to need those layers.
+
 ### Express/Fastify (medium): layered
 
 ```
