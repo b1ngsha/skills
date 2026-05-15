@@ -48,40 +48,41 @@
 
 ## 安装
 
-将每个 skill 软链到所有检测到的 Agent skills 目录。仓库更新即刻生效，无需复制同步。`vendor/` 下的 Waza、kami 用 git submodule 管理，克隆时记得加 `--recurse-submodules`。
+把下面这段 prompt 丢给目标 Agent（Claude Code / Cursor / Codex CLI 等），它会把仓库里所有 skill 都软链到自己的 skills 目录：
 
-```bash
-git clone --recurse-submodules https://github.com/<user>/my-skills.git ~/Documents/code/my-skills
-cd ~/Documents/code/my-skills
-./install.sh
+```
+Install the my-skills collection for me:
+
+1. Clone https://github.com/b1ngsha/skills (with --recurse-submodules)
+   to a stable local path like ~/Documents/code/my-skills.
+2. For every SKILL.md under `<repo>/*/`, `<repo>/vendor/*/`, and
+   `<repo>/vendor/*/skills/*/`, symlink its containing directory into
+   your user-level skills dir (e.g. `~/.claude/skills/` for Claude Code).
+   Skip any name that already exists as a real file/dir.
+3. Confirm the install path and the list of installed skills when done.
 ```
 
-漏加 `--recurse-submodules` 时补一句：
+软链直接指向本仓源文件，`git pull` 后所有 Agent 立即生效。
+
+### Fallback：脚本安装
+
+不想让 Agent 代劳、或者要批量装到全部 Agent 时，用脚本：
+
+```bash
+git clone --recurse-submodules https://github.com/b1ngsha/skills.git ~/Documents/code/my-skills
+cd ~/Documents/code/my-skills
+./install.sh              # 幂等安装
+./install.sh dry-run      # 预览变更
+./install.sh uninstall    # 仅删除本脚本创建的软链
+```
+
+脚本会扫描以下目录，只对父目录已存在的 Agent 操作：`~/.cursor/skills/`、`~/.codex/skills/`、`~/.claude/skills/`、`~/.agents/skills/`。已存在的真实文件或目录会跳过，绝不覆盖。
+
+漏加 `--recurse-submodules` 时补：
 
 ```bash
 git submodule update --init --recursive
 ```
-
-支持的目标目录：
-
-| Agent | 路径 |
-|---|---|
-| Cursor | `~/.cursor/skills/` |
-| Codex CLI | `~/.codex/skills/` |
-| Claude Code | `~/.claude/skills/` |
-| 通用 | `~/.agents/skills/` |
-
-只对父目录（`~/.cursor`、`~/.codex` 等）已存在的 Agent 进行操作，未安装的 Agent 会静默跳过。
-
-## 命令
-
-```bash
-./install.sh              # 幂等安装（默认）
-./install.sh dry-run      # 预览变更，不写入
-./install.sh uninstall    # 仅删除本脚本创建的软链
-```
-
-`install` 拒绝覆盖目标路径上已存在的真实文件或目录——只会处理指向本仓库的软链，避免误删。
 
 ## 更新
 

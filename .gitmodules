@@ -4,3 +4,9 @@
 [submodule "vendor/kami"]
 	path = vendor/kami
 	url = https://github.com/tw93/kami.git
+[submodule "vendor/native-feel-skill"]
+	path = vendor/native-feel-skill
+	url = https://github.com/yetone/native-feel-skill.git
+[submodule "vendor/yansu-skill"]
+	path = vendor/yansu-skill
+	url = https://github.com/Isoform/yansu-skill.git
