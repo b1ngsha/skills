@@ -1,0 +1,15 @@
+# Copy to sync-remote.conf and customize for your machines.
+#   cp sync-remote.conf.example sync-remote.conf
+#
+# Default target when no argument is passed:
+REMOTE=user@192.168.101.71
+
+# Default SSH user when passing host-only targets (e.g. ./sync-to-remote.sh 192.168.101.230)
+SSH_USER=user
+
+# Named profiles — use: ./sync-to-remote.sh lab
+[lab]
+host=user@192.168.101.71
+
+[dev]
+host=user@192.168.101.230
