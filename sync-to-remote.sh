@@ -33,7 +33,9 @@ REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 RSYNC_OPTS=(-avz --delete --exclude '.git/' --exclude '.DS_Store')
 CONFIG_DEFAULT_USER="${SSH_USER:-${USER:-}}"
 CONFIG_REMOTE=""
-declare -A PROFILES=()
+CONFIG_FILES=()
+PROFILE_NAMES=()
+PROFILE_HOSTS=()
 
 usage() {
   cat <<EOF
@@ -87,10 +89,25 @@ load_config() {
       esac
     else
       case "$line" in
-        host=*) PROFILES["$section"]="${line#host=}" ;;
+        host=*)
+          PROFILE_NAMES+=("$section")
+          PROFILE_HOSTS+=("${line#host=}")
+          ;;
       esac
     fi
   done < "$file"
+}
+
+lookup_profile() {
+  local name="$1"
+  local i
+  for i in "${!PROFILE_NAMES[@]}"; do
+    if [ "${PROFILE_NAMES[$i]}" = "$name" ]; then
+      printf '%s' "${PROFILE_HOSTS[$i]}"
+      return 0
+    fi
+  done
+  return 1
 }
 
 resolve_config_files() {
@@ -134,8 +151,9 @@ resolve_remote() {
         ;;
     esac
 
-    if [ -n "${PROFILES[$arg]+x}" ]; then
-      REMOTE="${PROFILES[$arg]}"
+    profile_host=""
+    if profile_host="$(lookup_profile "$arg")"; then
+      REMOTE="$profile_host"
       return 0
     fi
 
@@ -196,13 +214,15 @@ parse_args() {
   done
 
   resolve_config_files
-  for cfg in "${CONFIG_FILES[@]:-}"; do
-    load_config "$cfg"
-  done
+  if [ ${#CONFIG_FILES[@]} -gt 0 ]; then
+    for cfg in "${CONFIG_FILES[@]}"; do
+      load_config "$cfg"
+    done
+  fi
 
   if [ "$LIST_ONLY" = "1" ]; then
     echo "Config files:"
-    if [ ${#CONFIG_FILES[@]:-0} -eq 0 ]; then
+    if [ ${#CONFIG_FILES[@]} -eq 0 ]; then
       echo "  (none)"
     else
       printf '  %s\n' "${CONFIG_FILES[@]}"
@@ -212,11 +232,12 @@ parse_args() {
     echo "SSH_USER: ${CONFIG_DEFAULT_USER:-<unset>}"
     echo
     echo "Profiles:"
-    if [ ${#PROFILES[@]} -eq 0 ]; then
+    if [ ${#PROFILE_NAMES[@]} -eq 0 ]; then
       echo "  (none)"
     else
-      for name in "${!PROFILES[@]}"; do
-        printf '  %-12s %s\n' "$name" "${PROFILES[$name]}"
+      local i
+      for i in "${!PROFILE_NAMES[@]}"; do
+        printf '  %-12s %s\n' "${PROFILE_NAMES[$i]}" "${PROFILE_HOSTS[$i]}"
       done | sort
     fi
     exit 0

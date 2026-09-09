@@ -10,3 +10,36 @@
 [submodule "vendor/yansu-skill"]
 	path = vendor/yansu-skill
 	url = https://github.com/Isoform/yansu-skill.git
+[submodule "vendor/mattpocock-skills"]
+	path = vendor/mattpocock-skills
+	url = https://github.com/mattpocock/skills.git
+[submodule "vendor/anthropics-skills"]
+	path = vendor/anthropics-skills
+	url = https://github.com/anthropics/skills.git
+[submodule "vendor/yutto-dev-yutto"]
+	path = vendor/yutto-dev-yutto
+	url = https://github.com/yutto-dev/yutto.git
+[submodule "vendor/humanizer-zh"]
+	path = vendor/humanizer-zh
+	url = https://github.com/op7418/Humanizer-zh.git
+[submodule "vendor/larksuite-meegle-cli"]
+	path = vendor/larksuite-meegle-cli
+	url = https://github.com/larksuite/meegle-cli.git
+[submodule "vendor/vercel-labs-skills"]
+	path = vendor/vercel-labs-skills
+	url = https://github.com/vercel-labs/skills.git
+[submodule "vendor/brianlovin-claude-config"]
+	path = vendor/brianlovin-claude-config
+	url = https://github.com/brianlovin/claude-config.git
+[submodule "vendor/humanlayer-skills"]
+	path = vendor/humanlayer-skills
+	url = https://github.com/humanlayer/skills.git
+[submodule "vendor/cursor-plugins"]
+	path = vendor/cursor-plugins
+	url = https://github.com/cursor/plugins.git
+[submodule "vendor/yetone-kill-ai-slop"]
+	path = vendor/yetone-kill-ai-slop
+	url = https://github.com/yetone/kill-ai-slop.git
+[submodule "vendor/larksuite-cli"]
+	path = vendor/larksuite-cli
+	url = https://github.com/larksuite/cli.git

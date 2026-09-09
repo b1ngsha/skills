@@ -14,6 +14,15 @@
 | [`refactor-entropy-cleanup`](refactor-entropy-cleanup/) | 整理多轮 AI 编辑后累积的目录熵 |
 | [`architecture-design-review`](architecture-design-review/) | 多仓架构审查，带严格上下文预算控制 |
 | [`security-review`](security-review/) | 威胁模型驱动的全栈安全审查（后端 / 前端 / 移动端 / 基础设施） |
+| [`find-simplifications`](find-simplifications/) | 全仓扫描死代码 / 重复 / 过度设计，产出可落地的简化提案 |
+| [`useless-code-cleanup`](useless-code-cleanup/) | 移除无意义兜底与废话注释，行为不变 |
+
+### 个人写作与发布
+
+| Skill | 用途 |
+|---|---|
+| [`my-doc-style`](my-doc-style/) | 按本人写作风格产出中文文档（测试指引 / 操作手册 / README / wiki） |
+| [`release-tag`](release-tag/) | 交互式发版：分析 diff 定版本号、生成 changelog、打 tag 推送 |
 
 ### Waza · 工程习惯（vendor 子模块：[tw93/Waza](https://github.com/tw93/Waza)）
 
@@ -21,14 +30,14 @@
 
 | Skill | 触发场景 | 做什么 |
 |---|---|---|
-| [`think`](vendor/Waza/skills/think/) | 动手做新功能 / 架构决策 / 价值判断之前 | 挑战需求、压测设计、把粗想法落成可执行方案 |
-| [`design`](vendor/Waza/skills/design/) | 做 UI / 组件 / 页面 / 视觉界面 | 产出有美学主张的前端实现，不走通用默认风 |
-| [`check`](vendor/Waza/skills/check/) | 实现完成、合并前 | review diff、自动修小问题、必要时分派 security 与 architecture 审查；也用于 issue / PR triage |
-| [`hunt`](vendor/Waza/skills/hunt/) | 报错 / 崩溃 / 测试失败 / 行为异常 | 系统化排查，先定位根因再动手修 |
-| [`read`](vendor/Waza/skills/read/) | 任何 URL 或 PDF | 取回干净 Markdown，针对 GitHub / 微信 / 飞书 / X 等做平台路由 |
-| [`learn`](vendor/Waza/skills/learn/) | 深度研究一个陌生领域 | 六阶段研究：收集 → 消化 → 提纲 → 填充 → 精修 → 自审 |
-| [`write`](vendor/Waza/skills/write/) | 写稿 / 改稿 / 润色 | 去 AI 味，把行文调成自然的中英文表达 |
-| [`health`](vendor/Waza/skills/health/) | Claude 不听话 / hook 失灵 / MCP 异常 | 审计 CLAUDE.md、rules、skills、hooks、MCP，按严重度报告问题（仅 Claude Code） |
+| [`think`](vendor/Waza/plugins/waza/skills/think/) | 动手做新功能 / 架构决策 / 价值判断之前 | 挑战需求、压测设计、把粗想法落成可执行方案 |
+| [`ui`](vendor/Waza/plugins/waza/skills/ui/) | 做 UI / 组件 / 页面 / 视觉界面 / 截图打磨 | 产出有美学主张的前端实现，不走通用默认风（v3.36 起取代 design） |
+| [`check`](vendor/Waza/plugins/waza/skills/check/) | 实现完成、合并前 | review diff、自动修小问题、必要时分派 security 与 architecture 审查；也用于 issue / PR triage |
+| [`hunt`](vendor/Waza/plugins/waza/skills/hunt/) | 报错 / 崩溃 / 测试失败 / 行为异常 | 系统化排查，先定位根因再动手修 |
+| [`read`](vendor/Waza/plugins/waza/skills/read/) | 任何 URL 或 PDF | 取回干净 Markdown，针对 GitHub / 微信 / 飞书 / X 等做平台路由 |
+| [`learn`](vendor/Waza/plugins/waza/skills/learn/) | 深度研究一个陌生领域 | 六阶段研究：收集 → 消化 → 提纲 → 填充 → 精修 → 自审 |
+| [`write`](vendor/Waza/plugins/waza/skills/write/) | 写稿 / 改稿 / 润色 | 去 AI 味，把行文调成自然的中英文表达 |
+| [`health`](vendor/Waza/plugins/waza/skills/health/) | Claude 不听话 / hook 失灵 / MCP 异常 | 审计 CLAUDE.md、rules、skills、hooks、MCP，按严重度报告问题（仅 Claude Code） |
 
 **常见手动串联**
 
@@ -42,9 +51,29 @@
 
 | Skill | 触发短语 |
 |---|---|
-| [`kami`](vendor/kami/) | "做 PDF / 排版 / 一页纸 / 白皮书 / 简历 / 作品集 / PPT"，"build me a resume / make a one-pager / design a slide deck" |
+| [`kami`](vendor/kami/plugins/kami/skills/kami/) | "做 PDF / 排版 / 一页纸 / 白皮书 / 简历 / 作品集 / PPT"，"build me a resume / make a one-pager / design a slide deck" |
 
-> 中文字体（TsangerJinKai02，约 36MB）在 [tw93/kami](https://github.com/tw93/kami) 仓库里跟随子模块直接 checkout；如果用浅克隆或精简 checkout 缺了字体，`vendor/kami/SKILL.md` 描述的脚本会从 jsDelivr CDN 自动补齐。WeasyPrint、Python 等构建依赖按上游 README 自行安装。
+> 中文字体（TsangerJinKai02，约 36MB）在 [tw93/kami](https://github.com/tw93/kami) 仓库里跟随子模块直接 checkout；如果用浅克隆或精简 checkout 缺了字体，`SKILL.md` 描述的脚本会从 jsDelivr CDN 自动补齐。WeasyPrint、Python 等构建依赖按上游 README 自行安装。
+
+### 其他第三方（vendor 子模块 + allowlist）
+
+仓库把日常在用的第三方 skill 以子模块形式收进 `vendor/`。**不是**上游仓库里的每个 skill 都会被安装——`install.sh` 只链接 `vendor/.allowlists/<子模块>` 白名单里列出的（没有白名单的子模块则全量发布）。要加/减技能，编辑对应白名单文件后重跑 `./install.sh` 即可。
+
+| vendor 子模块 | 收录 skill（白名单） | 上游 |
+|---|---|---|
+| [`mattpocock-skills`](vendor/mattpocock-skills/) | 20 个：ask-matt、code-review、codebase-design、diagnosing-bugs、domain-modeling、grill-me/grill-with-docs/grilling、handoff、implement、improve-codebase-architecture、prototype、research、setup-matt-pocock-skills、tdd、teach、to-spec/to-tickets/triage、wayfinder | [mattpocock/skills](https://github.com/mattpocock/skills) |
+| [`anthropics-skills`](vendor/anthropics-skills/) | frontend-design | [anthropics/skills](https://github.com/anthropics/skills) |
+| [`yutto-dev-yutto`](vendor/yutto-dev-yutto/) | bilibili-video-download | [yutto-dev/yutto](https://github.com/yutto-dev/yutto) |
+| [`humanizer-zh`](vendor/humanizer-zh/) | humanizer-zh | [op7418/Humanizer-zh](https://github.com/op7418/Humanizer-zh) |
+| [`larksuite-meegle-cli`](vendor/larksuite-meegle-cli/) | meegle | [larksuite/meegle-cli](https://github.com/larksuite/meegle-cli) |
+| [`larksuite-cli`](vendor/larksuite-cli/) | lark-* 27 个（白名单内；官方 `skills/` 另有 `lark-meeting`，需要时加进 `vendor/.allowlists/larksuite-cli` 即可启用） | [larksuite/cli](https://github.com/larksuite/cli) |
+| [`vercel-labs-skills`](vendor/vercel-labs-skills/) | find-skills | [vercel-labs/skills](https://github.com/vercel-labs/skills) |
+| [`brianlovin-claude-config`](vendor/brianlovin-claude-config/) | simplify | [brianlovin/claude-config](https://github.com/brianlovin/claude-config) |
+| [`humanlayer-skills`](vendor/humanlayer-skills/) | show-me | [humanlayer/skills](https://github.com/humanlayer/skills) |
+| [`cursor-plugins`](vendor/cursor-plugins/) | thermo-nuclear-code-quality-review | [cursor/plugins](https://github.com/cursor/plugins) |
+| [`yetone-kill-ai-slop`](vendor/yetone-kill-ai-slop/) | kill-ai-slop | [yetone/kill-ai-slop](https://github.com/yetone/kill-ai-slop) |
+
+另有两个单 skill vendor（无白名单，全量发布）：[`native-feel-skill`](vendor/native-feel-skill/) 与 [`yansu-skill`](vendor/yansu-skill/)。
 
 ## 安装
 
@@ -55,9 +84,9 @@ Install the my-skills collection for me:
 
 1. Clone https://github.com/b1ngsha/skills (with --recurse-submodules)
    to a stable local path like ~/Documents/code/my-skills.
-2. For every SKILL.md under `<repo>/*/`, `<repo>/vendor/*/`, and
-   `<repo>/vendor/*/skills/*/`, symlink its containing directory into
-   your user-level skills dir (e.g. `~/.claude/skills/` for Claude Code).
+2. Symlink every SKILL.md under `<repo>/*/` and `<repo>/vendor/*/` (any depth)
+   into your user-level skills dir (e.g. `~/.claude/skills/` for Claude Code).
+   Respect `vendor/.allowlists/<submodule>` whitelists when present.
    Skip any name that already exists as a real file/dir.
 3. Confirm the install path and the list of installed skills when done.
 ```
@@ -71,12 +100,14 @@ Install the my-skills collection for me:
 ```bash
 git clone --recurse-submodules https://github.com/b1ngsha/skills.git ~/Documents/code/my-skills
 cd ~/Documents/code/my-skills
-./install.sh              # 幂等安装
+./install.sh              # 更新仓库 + vendor 子模块，然后（重）链接（幂等）
+./install.sh link         # 只重链接，不联网
 ./install.sh dry-run      # 预览变更
 ./install.sh uninstall    # 仅删除本脚本创建的软链
+# SKIP_UPDATE=1 ./install.sh   # 跳过 git pull / 子模块刷新
 ```
 
-脚本会扫描以下目录，只对父目录已存在的 Agent 操作：`~/.cursor/skills/`、`~/.codex/skills/`、`~/.claude/skills/`、`~/.agents/skills/`。已存在的真实文件或目录会跳过，绝不覆盖。
+脚本会扫描以下目录，只对父目录已存在的 Agent 操作：`~/.cursor/skills/`、`~/.codex/skills/`、`~/.claude/skills/`、`~/.agents/skills/`。已存在的真实文件或目录会跳过（例如 `npx skills` CLI 安装的实体目录），绝不覆盖。
 
 漏加 `--recurse-submodules` 时补：
 
@@ -86,21 +117,23 @@ git submodule update --init --recursive
 
 ## 更新
 
-本仓自身的 skill：
+一条命令完成全部（本仓代码 + 14 个 vendor 子模块 + 重链）：
 
 ```bash
-git -C ~/Documents/code/my-skills pull
+./install.sh
 ```
 
-把 vendor 子模块（Waza、kami）拉到上游最新提交：
+等价于：
 
 ```bash
-git -C ~/Documents/code/my-skills submodule update --remote --merge
-# 想固化到当前 commit：
-git -C ~/Documents/code/my-skills add vendor && git commit -m "bump vendor skills"
+git pull --ff-only
+git submodule update --recursive --remote   # Waza、kami、mattpocock、anthropics …
+./install.sh link
 ```
 
-软链直接指向源文件，更新立即对所有 Agent 生效。只有新增 skill 目录时才需要重跑 `install.sh`。
+- vendor 子模块指针移动后不会自动提交，脚本会提示固化：`git add vendor && git commit -m "bump vendor skills"`。
+- 软链直接指向源文件，pull 完立即对所有 Agent 生效；每次运行都会补上新出现的 skill 链接。
+- 修改某 vendor 收录范围：编辑 `vendor/.allowlists/<子模块>` 后重跑 `./install.sh link`。
 
 ## 使用
 
