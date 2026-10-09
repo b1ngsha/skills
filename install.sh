@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
-# Install / update skills from this repo into every detected agent's skills directory.
+# Link this repo's own skills, and point every agent at the npx skills tree.
 #
-# Skills are installed as symlinks, so once linked, updating the repo (git pull
-# + refreshing vendor submodules) propagates to all agents instantly. This
-# script performs that whole flow:
+# Upstream skills are owned by `npx skills` (`~/.agents/skills` and
+# `~/.agents/.skill-lock.json`). This script must not replace those copies
+# with a checkout under vendor/. Agent directories get a symlink to
+# `~/.agents/skills/<name>`, so Cursor and Codex read the same tree Claude
+# reads. Skills in this repo that npx does not own are still symlinked into
+# `~/.agents/skills` from here.
 #
 #   ./install.sh             # (default) git pull + vendor submodules, then (re)link
 #   ./install.sh update      # same as above (explicit alias)
@@ -33,13 +36,30 @@ case "$MODE" in
     ;;
 esac
 
-# Agent skill directories. Add new ones here as agents adopt the SKILL.md convention.
+# Canonical tree first. ~/.claude/skills is a symlink to it, so that pass is
+# the same directory. Other agents are linked only after it exists.
+CANON="$HOME/.agents/skills"
+LOCK="$HOME/.agents/.skill-lock.json"
 TARGETS=(
+  "$HOME/.agents/skills"
+  "$HOME/.claude/skills"
   "$HOME/.cursor/skills"
   "$HOME/.codex/skills"
-  "$HOME/.claude/skills"
-  "$HOME/.agents/skills"
 )
+
+skill_in_lock() {
+  local name="$1"
+  [ -f "$LOCK" ] || return 1
+  python3 -c 'import json,sys; sys.exit(0 if sys.argv[1] in json.load(open(sys.argv[2])).get("skills", {}) else 1)' "$name" "$LOCK"
+}
+
+is_canon_target() {
+  local target="$1" canon_real target_real
+  [ -d "$target" ] && [ -d "$CANON" ] || return 1
+  canon_real="$(cd "$CANON" && pwd -P)"
+  target_real="$(cd "$target" && pwd -P)"
+  [ "$target_real" = "$canon_real" ]
+}
 
 # ---------------------------------------------------------------------------
 # update_repo: bring this checkout up to date (git pull + vendor submodules).
@@ -70,7 +90,7 @@ update_repo() {
     UPDATE_FAILED=1
   fi
 
-  # 2. Refresh vendor submodules (Waza, kami, native-feel-skill, yansu-skill)
+  # 2. Refresh vendor submodules (Waza, kami, native-feel-skill, …)
   #    to their upstream tips. This stages the new gitlink pointers in the
   #    superproject but does not commit them.
   if ! git -C "$git_root" submodule update --recursive --remote 2>&1 | sed 's/^/    /'; then
@@ -174,41 +194,86 @@ for target in "${TARGETS[@]}"; do
     skill="${SKILL_DIRS[$i]}"
     name="${SKILL_NAMES[$i]}"
     link="$target/$name"
+    # npx skills owns the bytes of a locked skill. Other agents only point at
+    # that copy. This repo still symlinks skills npx does not know about.
+    if is_canon_target "$target"; then
+      if skill_in_lock "$name"; then
+        printf "  npx      %s\n" "$name"
+        continue
+      fi
+      dest="$skill"
+    elif [ -e "$CANON/$name" ]; then
+      dest="$CANON/$name"
+    elif skill_in_lock "$name"; then
+      printf "  npx      %s (not in %s)\n" "$name" "$CANON"
+      continue
+    else
+      dest="$skill"
+    fi
 
     case "$MODE" in
       install|update|link)
         if [ -L "$link" ]; then
-          if [ "$(readlink "$link")" = "$skill" ]; then
+          if [ "$(readlink "$link")" = "$dest" ]; then
             printf "  ok       %s\n" "$name"
           else
             rm "$link"
-            ln -s "$skill" "$link"
+            ln -s "$dest" "$link"
             printf "  relinked %s\n" "$name"
           fi
         elif [ -e "$link" ]; then
           printf "  SKIP     %s  (exists and is not a symlink)\n" "$name" >&2
           continue
         else
-          ln -s "$skill" "$link"
+          ln -s "$dest" "$link"
           printf "  linked   %s\n" "$name"
         fi
         installed_any=1
         ;;
       uninstall)
-        if [ -L "$link" ] && [ "$(readlink "$link")" = "$skill" ]; then
+        if [ -L "$link" ] && { [ "$(readlink "$link")" = "$skill" ] || [ "$(readlink "$link")" = "$CANON/$name" ]; }; then
           rm "$link"
           printf "  removed  %s\n" "$name"
         fi
         ;;
       dry-run)
-        if [ -L "$link" ] && [ "$(readlink "$link")" = "$skill" ]; then
+        if [ -L "$link" ] && [ "$(readlink "$link")" = "$dest" ]; then
           printf "  ok       %s\n" "$name"
         else
-          printf "  would link %s -> %s\n" "$name" "$skill"
+          printf "  would link %s -> %s\n" "$name" "$dest"
         fi
         ;;
     esac
   done
+
+  # Skills npx installed that this repo does not vendor (pr, retro, lark, …)
+  # still need an agent symlink. Never replace a real directory.
+  if ! is_canon_target "$target" && { [ "$MODE" = "install" ] || [ "$MODE" = "update" ] || [ "$MODE" = "link" ]; }; then
+    for dest in "$CANON"/*; do
+      [ -e "$dest" ] || continue
+      name="$(basename "$dest")"
+      link="$target/$name"
+      # Publish real skills. Also retarget a leftover symlink when the canon
+      # entry exists but has no SKILL.md, so agent dirs never point at the repo.
+      if [ ! -e "$dest/SKILL.md" ] && [ ! -L "$link" ]; then
+        continue
+      fi
+      if [ -L "$link" ]; then
+        if [ "$(readlink "$link")" = "$dest" ]; then
+          continue
+        fi
+        rm "$link"
+        ln -s "$dest" "$link"
+        printf "  relinked %s -> npx\n" "$name"
+      elif [ -e "$link" ]; then
+        printf "  SKIP     %s  (exists and is not a symlink)\n" "$name" >&2
+      else
+        ln -s "$dest" "$link"
+        printf "  linked   %s -> npx\n" "$name"
+      fi
+      installed_any=1
+    done
+  fi
   echo
 done
 

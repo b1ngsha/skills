@@ -8,14 +8,7 @@
 
 | Skill | 用途 |
 |---|---|
-| [`backend-code-review`](backend-code-review/) | Django + DRF + Python 代码审查（安全、ORM、类型、性能） |
-| [`rn-code-review`](rn-code-review/) | React Native + Expo + TypeScript 代码审查（PR 级 + 单文件深度） |
-| [`figma-to-rn`](figma-to-rn/) | 将 Figma 设计稿转换为 React Native + Gluestack-UI 组件 |
-| [`refactor-entropy-cleanup`](refactor-entropy-cleanup/) | 整理多轮 AI 编辑后累积的目录熵 |
-| [`architecture-design-review`](architecture-design-review/) | 多仓架构审查，带严格上下文预算控制 |
-| [`security-review`](security-review/) | 威胁模型驱动的全栈安全审查（后端 / 前端 / 移动端 / 基础设施） |
 | [`find-simplifications`](find-simplifications/) | 全仓扫描死代码 / 重复 / 过度设计，产出可落地的简化提案 |
-| [`useless-code-cleanup`](useless-code-cleanup/) | 移除无意义兜底与废话注释，行为不变 |
 
 ### 个人写作与发布
 
@@ -73,7 +66,7 @@
 | [`cursor-plugins`](vendor/cursor-plugins/) | thermo-nuclear-code-quality-review | [cursor/plugins](https://github.com/cursor/plugins) |
 | [`yetone-kill-ai-slop`](vendor/yetone-kill-ai-slop/) | kill-ai-slop | [yetone/kill-ai-slop](https://github.com/yetone/kill-ai-slop) |
 
-另有两个单 skill vendor（无白名单，全量发布）：[`native-feel-skill`](vendor/native-feel-skill/) 与 [`yansu-skill`](vendor/yansu-skill/)。
+另有一个单 skill vendor（无白名单，全量发布）：[`native-feel-skill`](vendor/native-feel-skill/)。
 
 ## 安装
 
@@ -154,7 +147,7 @@ my-new-skill/
     └── *.md
 ```
 
-放好后重跑 `./install.sh` 即可。格式参考任意现有 skill，例如 [`security-review/SKILL.md`](security-review/SKILL.md)。
+放好后重跑 `./install.sh` 即可。格式参考任意现有 skill，例如 [`find-simplifications/SKILL.md`](find-simplifications/SKILL.md)。
 
 ## License
 

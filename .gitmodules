@@ -7,9 +7,6 @@
 [submodule "vendor/native-feel-skill"]
 	path = vendor/native-feel-skill
 	url = https://github.com/yetone/native-feel-skill.git
-[submodule "vendor/yansu-skill"]
-	path = vendor/yansu-skill
-	url = https://github.com/Isoform/yansu-skill.git
 [submodule "vendor/mattpocock-skills"]
 	path = vendor/mattpocock-skills
 	url = https://github.com/mattpocock/skills.git

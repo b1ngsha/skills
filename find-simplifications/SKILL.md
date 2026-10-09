@@ -1,6 +1,6 @@
 ---
 name: find-simplifications
-description: Survey a repository for evidence-backed simplification candidates — dead, duplicated, speculative, over-built, or hand-rolled-where-a-dependency-exists surfaces — and write each up as an implementable proposal or inline TODO. Use when the user asks what can be simplified, removed, or deleted from a codebase, or wants simplification ideas from another branch or PR folded in.
+description: Survey a repository for evidence-backed simplification candidates — dead, duplicated, speculative, over-built, self-verifying, or hand-rolled-where-a-dependency-exists surfaces, plus comments and docs that restate the code — and write each up as an implementable proposal or inline TODO. Use when the user asks what can be simplified, removed, or deleted from a codebase, wants simplification ideas from another branch or PR folded in, or asks to retire design records that a shipped simplification superseded.
 ---
 
 # Finding Simplifications
@@ -27,9 +27,20 @@ A strong candidate removes, folds, or demotes something real, with evidence that
 
 Thin candidates do not earn a proposal: a lone typo, one run of a dead-code tool, deleting a documented intentional design, or "this looks complex" without call-site proof.
 
+### Audit self-verifying checks
+
+A runtime invariant, consistency checker, or health probe earns its place only when it compares independently produced observations that can diverge — distinct event producers, durable history against live state, independently mutable data. Remove checks that inspect mere presence or static metadata, replay a fixed example, or verify the result of the same mutation they claim to verify. Take the export, build entry, check-only dependency, and check-only tests with it, and record why the check was dropped where the next maintainer will look.
+
 ## Survey Broadly
 
 Derive survey domains from the repo itself — entry points, the core loop or pipeline, public API and protocol layers, persistence, integrations, packages/tests/scripts. When the user asks for breadth or many candidates, give each domain to a parallel subagent and require evidence, not guesses; without subagents, walk the same domains yourself. Run the survey to completion: a strong early candidate is a data point, not a finish line. Weight the survey toward the files carrying the most production code — an audit that stops at obvious unused symbols misses the files where duplicated lifecycle or defensive machinery carries most of the cost.
+
+## Simplify Prose With The Code
+
+Comments and documentation are maintained surface area; survey them alongside the code they describe.
+
+- Delete comments that restate the code or narrate behavior owned elsewhere. Keep the local contract a reader cannot recover from the code — the why, the invariant, the gotcha.
+- Keep each doc at its owning level. Implementation details and rare cases leave unless they change a maintained contract.
 
 ## Audit Trust And Lifecycle Boundaries
 
@@ -76,10 +87,14 @@ Follow the repo's convention for durable design records when one exists (ADRs, d
 
 Reserve inline TODO/FIXME for small, local cleanups that are clearly useful but below proposal weight. Name the smell with a stable tag (`TODO(unused-default)`), then say why it is safe to revisit and what action would simplify it. Anything speculative or design-level earns a proposal or nothing.
 
+## Retire Superseded Design Records
+
+When the repo keeps durable design records, a shipped simplification can strand the record that justified the old design. Audit records only when the user asks to reduce them or the change you are implementing makes an owning record obsolete — a code survey does not widen into a repository-wide record audit on its own. Follow [`superseding-records.md`](superseding-records.md) for the supersession test, the added-then-removed case, and the deletion procedure.
+
 ## Folding Ideas From Another Branch
 
-Diff the sibling branch against the mainline, not against the current branch, so its independent contribution is visible. Port the non-overlapping items that meet the quality bar, consolidate overlapping material into the record that owns the topic, and keep the reported candidate count honest — duplicates and low-confidence items stay behind.
+Diff the sibling branch against the mainline, not against the current branch, so its independent contribution is visible. Port the non-overlapping items that meet the quality bar, consolidate overlapping material into the record that owns the topic, and keep the reported candidate count honest — duplicates and low-confidence items stay behind. Leave the sibling PR open unless the user asked you to close it or that housekeeping is clearly yours.
 
 ## Report The Survey
 
-Close with an accounting the user can check: every domain surveyed or intentionally excluded, every candidate carrying a verdict — proposed, downgraded to a TODO, or rejected with its reason — and, when files were touched, which of the repo's own checks (lint, tests, doc validators) ran clean.
+Close with an accounting the user can check: every domain surveyed or intentionally excluded, every candidate carrying a verdict — proposed, downgraded to a TODO, or rejected with its reason — and, when files were touched, which of the repo's own checks (lint, tests, doc validators) ran clean. When records were retired, name each old and current owner and the evidence for supersession. Keep a PR in draft while the survey is still expanding; mark it ready once the candidate set, review responses, and validation are settled.
