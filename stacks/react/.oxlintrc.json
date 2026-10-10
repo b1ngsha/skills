@@ -1,0 +1,10 @@
+{
+  "categories": {
+    "correctness": "error"
+  },
+  "plugins": ["react", "typescript", "vitest"],
+  "env": {
+    "browser": true
+  },
+  "ignorePatterns": ["src/routeTree.gen.ts"]
+}

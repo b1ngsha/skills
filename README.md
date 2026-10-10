@@ -17,6 +17,17 @@
 | [`my-doc-style`](my-doc-style/) | 按本人写作风格产出中文文档（测试指引 / 操作手册 / README / wiki） |
 | [`release-tag`](release-tag/) | 交互式发版：分析 diff 定版本号、生成 changelog、打 tag 推送 |
 
+## 启动模板
+
+`./new.sh` 先跑官方脚手架，再把该栈的编码规范拷进新目录。规范落在项目里的 `CODING_STANDARDS.md`，`AGENTS.md` 指向它，供 `/code-review` 的 Standards 轴读取。`install.sh` 不链接 `stacks/`。
+
+| 命令 | 得到 |
+|---|---|
+| `./new.sh gin <dir>` | Gin HTTP 服务：`GET /healthz`、短的 golangci-lint 配置、`make fmt` / `lint` / `test` |
+| `./new.sh react <dir>` | 仓库根的 Vite + React + TanStack Router 应用，pnpm，oxlint / oxfmt |
+
+原文在 [`stacks/gin`](stacks/gin/) 和 [`stacks/react`](stacks/react/)。模块路径用目录名。已有目录会拒绝覆盖，也不会改已存在的仓库。
+
 ### Waza · 工程习惯（vendor 子模块：[tw93/Waza](https://github.com/tw93/Waza)）
 
 把"动手前先想"、"交付前自检"、"出错先定位根因"这类工程习惯包装成可调用的 skill。每个 skill 一个明确触发点、一件事做透，不互相串联——切换由用户手动决定。
